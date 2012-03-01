@@ -223,7 +223,7 @@ steal('steal/parse','steal/build/scripts').then(
 		else {
 
 		}
-		stealPull(p, content, cb);
+		stealPullBody(p, content, cb);
 
 	};
 });

@@ -144,6 +144,26 @@ steal('steal/parse','steal/build/scripts').then(
 		return funcs[ith || 0];
 
 	};
+	s.build.pluginify.getFunctionBody = function(content, ith){
+		var p = s.parse(content),
+			token,
+			funcs = [];
+
+		while (token = p.moveNext()) {
+			//print(token.value)
+			if (token.type !== "string") {
+				switch (token.value) {
+					case "steal":
+						stealPullBody(p, content, function(func){
+							funcs.push(func)
+						});
+						break;
+				}
+			}
+		}
+		return funcs[ith || 0];
+
+	};
 	//gets a function from steal
 	var stealPull = function(p, content, cb){
 		var token = p.next(), startToken, endToken;
@@ -166,6 +186,37 @@ steal('steal/parse','steal/build/scripts').then(
 
 			endToken = p.partner("{");
 			cb(content.substring(token.from, endToken.to))
+			//print("CONTENT\n"+  );
+			p.moveNext();
+		}
+		else {
+
+		}
+		stealPull(p, content, cb);
+
+	};
+	//gets a function from steal
+	var stealPullBody = function(p, content, cb){
+		var token = p.next(), startToken, endToken;
+		if (!token || (token.value != "." && token.value != "(")) {
+			// we said steal .. but we don't care
+			return;
+		}
+		else {
+			p.moveNext();
+		}
+		if (token.value == ".") {
+			p.until("(")
+		}
+		var tokens = p.until("function", ")");
+		if (tokens && tokens[0].value == "function") {
+
+			token = tokens[0];
+
+			startToken = p.until("{")[0];
+
+			endToken = p.partner("{");
+			cb(content.substring(startToken.from+1, endToken.to-1))
 			//print("CONTENT\n"+  );
 			p.moveNext();
 		}
